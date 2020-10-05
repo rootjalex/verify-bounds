@@ -1,0 +1,7 @@
+{
+    "name": "verify-bounds",
+    "version-string": "0.0.1",
+    "dependencies": [
+        "z3"
+    ]
+}
