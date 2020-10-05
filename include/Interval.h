@@ -19,6 +19,8 @@ struct Interval {
     Interval() : upper(nullptr), lower(nullptr) {}
     std::string ToString(z3::model &m);
     std::string ToStringSymbolic();
+    z3::expr GetLower();
+    z3::expr GetUpper();
 };
 
 

@@ -1,5 +1,13 @@
 #include "Interval.h"
 
+z3::expr Interval::GetLower() {
+    return *lower->expr;
+}
+
+z3::expr Interval::GetUpper() {
+    return *upper->expr;
+}
+
 std::string Interval::ToString(z3::model &m) {
     std::string str = "[ " + lower->ToString(m) + ", " + upper->ToString(m);
     
@@ -17,9 +25,9 @@ std::string Interval::ToStringSymbolic() {
     std::string str = "[ " + lower->ToStringSymbolic() + ", " + upper->ToStringSymbolic();
 
     if (type == Point) {
-        str += (", (" + lower->ToStringSymbolic() + "==" + upper->ToStringSymbolic() + ") ");
+        str += (", ((" + lower->ToStringSymbolic() + ")==(" + upper->ToStringSymbolic() + ")) ");
     } else if (type == NotPoint) {
-        str += (", (" + lower->ToStringSymbolic() + "<" + upper->ToStringSymbolic() + ") ");
+        str += (", ((" + lower->ToStringSymbolic() + ")<" + upper->ToStringSymbolic() + ")) ");
     }
 
     str += " ]";

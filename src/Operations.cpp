@@ -34,7 +34,7 @@ z3::expr generate_op(z3::context &context, Operation op, z3::expr &i, z3::expr &
             return i * j;
         }
         case Operation::Div: {
-            return ite(j == 0, context.int_val(0), i / j);
+            return halide_div(context, i, j);
         }
         default: {
             std::cerr << "Could not identify Operation in generate_op()!" << std::endl;
@@ -43,5 +43,13 @@ z3::expr generate_op(z3::context &context, Operation op, z3::expr &i, z3::expr &
 }
 
 z3::expr halide_div(z3::context &context, z3::expr &i, z3::expr &j) {
-    return ite(j == 0, context.int_val(0), (i - (i % j)) / j);
+    return ite(
+                j == 0, 
+                    context.int_val(0), 
+                    ite(
+                        j < 0,
+                        (i + (i % j)) / j,
+                        i / j
+                    )
+                );
 }

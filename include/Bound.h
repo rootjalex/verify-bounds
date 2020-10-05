@@ -10,7 +10,8 @@ enum BoundType {
 };
 
 enum Restriction {
-    None = 0,
+    NoRestriction = 0,
+    IsZero,
     NonPositive,
     NonNegative,
 };

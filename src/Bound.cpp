@@ -13,7 +13,7 @@ std::string Bound::ToStringSymbolic(bool print) {
         return "_";
     }
     switch(restriction) {
-        case Restriction::None: {
+        case NoRestriction: {
             return expr->to_string();
         }
         case Restriction::NonPositive: {
@@ -21,6 +21,9 @@ std::string Bound::ToStringSymbolic(bool print) {
         }
         case Restriction::NonNegative: {
             return expr->to_string() + " >= 0";
+        }
+        case Restriction::IsZero: {
+            return expr->to_string() + " == 0";
         }
         default: {
             std::cerr << "Could not identify restriction in Bound::ToStringSymbolic()!" << std::endl;
@@ -50,7 +53,7 @@ void apply_bound(z3::solver &solver, z3::expr &variable, Bound *bound) {
 
 void apply_restriction(z3::solver &solver, Bound *bound) {
     switch(bound->restriction) {
-        case Restriction::None: {
+        case NoRestriction: {
             return;
         }
         case Restriction::NonPositive: {
@@ -59,6 +62,10 @@ void apply_restriction(z3::solver &solver, Bound *bound) {
         }
         case Restriction::NonNegative: {
             solver.add(*bound->expr >= 0);
+            return;
+        }
+        case Restriction::IsZero: {
+            solver.add(*bound->expr == 0);
             return;
         }
         default: {
