@@ -46,10 +46,6 @@ z3::expr halide_div(z3::context &context, z3::expr &i, z3::expr &j) {
     return ite(
                 j == 0, 
                     context.int_val(0), 
-                    ite(
-                        j < 0,
-                        (i + (i % j)) / j,
-                        i / j
-                    )
+                    i / j
                 );
 }
