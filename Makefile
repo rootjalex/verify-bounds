@@ -1,6 +1,7 @@
 
 CXX := c++ -std=c++14 -stdlib=libc++ -Iinclude -g
-CXX_Z3 := -I<z3_dir> /Users/alexanderroot/Projects/z3/build/libz3.dylib
+Z3_DIR := 
+CXX_Z3 := -I$(Z3_DIR)/api/c++ I$(Z3_DIR)/build/libz3.dylib
 
 BUILD_DIR := build
 SRC_DIR := src
