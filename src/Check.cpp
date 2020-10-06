@@ -13,11 +13,11 @@ void check(z3::context &context, Operation op, Interval *a,
     z3::expr res = generate_op(context, op, i, j);
 
     if (e0.type != Unbounded && e1.type != Unbounded) {
-        solver.add((res < *e0.expr) || (res > *e1.expr));
+        solver.add((res < e0.expr) || (res > e1.expr));
     } else if (e0.type != Unbounded) {
-        solver.add(res < *e0.expr);
+        solver.add(res < e0.expr);
     } else if (e1.type != Unbounded) {
-        solver.add(res > *e1.expr);
+        solver.add(res > e1.expr);
     }
 
     if(solver.check() == z3::unsat) {
@@ -39,13 +39,13 @@ void check(z3::context &context, Operation op, Interval *a,
 
         std::cout << "Resultant bounds: [";
         if (e0.expr) {
-            std::cout << model.eval(*e0.expr);
+            std::cout << model.eval(e0.expr);
         } else {
             std::cout << "_";
         }
         std::cout << ", ";
         if (e1.expr) {
-            std::cout << model.eval(*e1.expr);
+            std::cout << model.eval(e1.expr);
         } else {
             std::cout << "_";
         }
@@ -56,7 +56,9 @@ void check(z3::context &context, Operation op, Interval *a,
         std::cout << " " << OpToString(op) << " ";
         std::cout << model.eval(j);
         std::cout << " = " << model.eval(res) << std::endl;
-     }
+    }
+    delete a;
+    delete b;
 }
 
 

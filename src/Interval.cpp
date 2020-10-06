@@ -1,11 +1,11 @@
 #include "Interval.h"
 
 z3::expr Interval::GetLower() {
-    return *lower->expr;
+    return lower->expr;
 }
 
 z3::expr Interval::GetUpper() {
-    return *upper->expr;
+    return upper->expr;
 }
 
 std::string Interval::ToString(z3::model &m) {
@@ -41,18 +41,18 @@ void apply_interval(z3::solver &solver, Interval *interval, z3::expr &variable) 
     apply_bound(solver, variable, interval->lower);
 
     // definition of interval
-    solver.add(*interval->lower->expr <= *interval->upper->expr);
+    solver.add(interval->lower->expr <= interval->upper->expr);
 
     switch(interval->type) {
         case IntervalType::Unknown: {
             return;
         }
         case IntervalType::Point: {
-            solver.add(*interval->lower->expr == *interval->upper->expr);
+            solver.add(interval->lower->expr == interval->upper->expr);
             return;
         }
         case IntervalType::NotPoint: {
-            solver.add(*interval->lower->expr < *interval->upper->expr);
+            solver.add(interval->lower->expr < interval->upper->expr);
             return;
         }
         default: {
@@ -70,14 +70,14 @@ Interval *MakeInterval(z3::context &context, std::string name, IntervalType type
     std::string lname = name + "0";
     std::string uname = name + "1";
     
-    z3::expr *lower = new z3::expr(context);
-    *lower = context.int_const(lname.c_str());
+    z3::expr lower = context.int_const(lname.c_str());
+    //new z3::expr(context);
+    // *lower = context.int_const(lname.c_str());
     
-    z3::expr *upper = new z3::expr(context);
-    *upper = context.int_const(uname.c_str());
-    if (!upper || !lower) {
-        std::cerr << "shit" << std::endl;
-    }
+    z3::expr upper = context.int_const(uname.c_str());
+    // new z3::expr(context);
+    // *upper = context.int_const(uname.c_str());
+    
     interval->lower = new Bound(lrest, ltype, lower);
     interval->upper = new Bound(urest, utype, upper);
     interval->type = type;

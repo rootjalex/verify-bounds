@@ -17,6 +17,7 @@ struct Interval {
     Interval(IntervalType _type, Bound *_lower, Bound *_upper)
         : type(_type), lower(_lower), upper(_upper) {}
     Interval() : upper(nullptr), lower(nullptr) {}
+    ~Interval() { delete upper; delete lower; }
     std::string ToString(z3::model &m);
     std::string ToStringSymbolic();
     z3::expr GetLower();
