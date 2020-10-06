@@ -20,7 +20,7 @@ target_link_libraries(core PUBLIC z3::libz3)
 target_include_directories(core PUBLIC include)
 
 foreach (test IN ITEMS add div-check mul sub)
-  add_executable(${test} ${test}.cpp)
+  add_executable(${test} checks/${test}.cpp)
   target_link_libraries(${test} PRIVATE core)
 endforeach ()
 
