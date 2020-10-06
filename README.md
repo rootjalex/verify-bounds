@@ -51,7 +51,7 @@ dev@host:~/verify-bounds$ ls build
 Then you can run any of the checks.
 
 ```
-dev@host:~/verify-bounds$ ./build/add
+dev@host:~/verify-bounds$ ./build/div-check
 -------------------
 Test bad Div
 failed to prove
