@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
 find_package(Z3 REQUIRED)
-find_path(Z3_INCLUDE_DIR z3++.h)
-include_directories(${Z3_INCLUDE_DIR})
+target_include_directories(z3::libz3 INTERFACE ${Z3_CXX_INCLUDE_DIRS})  # Z3 package is broken.
 
 set(core_sources
     src/Bound.cpp
