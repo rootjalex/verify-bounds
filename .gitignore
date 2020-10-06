@@ -37,3 +37,9 @@
 
 # Python example code
 __pycache__
+
+# Z3 noise
+.z3-trace
+
+# Build directories
+/*build*/
