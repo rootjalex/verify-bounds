@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
 find_package(Z3 REQUIRED)
+find_path(Z3_INCLUDE_DIR z3++.h)
+include_directories(${Z3_INCLUDE_DIR})
 
 set(core_sources
     src/Bound.cpp
