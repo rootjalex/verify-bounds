@@ -19,8 +19,8 @@ void test_single_point() {
     z3::expr emin = a0 * b0;
     z3::expr emax = a0 * b0;
 
-    Bound e0(NoRestriction, LowerBound, &emin);
-    Bound e1(NoRestriction, UpperBound, &emax);
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -41,8 +41,8 @@ void test_b_zero() {
     z3::expr emin = c.int_val(0);
     z3::expr emax = c.int_val(0);
 
-    Bound e0(IsZero, LowerBound, &emin);
-    Bound e1(IsZero, UpperBound, &emax);
+    Bound e0(IsZero, LowerBound, emin);
+    Bound e1(IsZero, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -67,8 +67,8 @@ void test_b_pos_a_bounded() {
     z3::expr emin = a0 * bp;
     z3::expr emax = a1 * bp;
 
-    Bound e0(NoRestriction, LowerBound, &emin);
-    Bound e1(NoRestriction, UpperBound, &emax);
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -94,8 +94,8 @@ void test_b_neg_a_bounded() {
     z3::expr emin = a1 * bn;
     z3::expr emax = a0 * bn;
 
-    Bound e0(NoRestriction, LowerBound, &emin);
-    Bound e1(NoRestriction, UpperBound, &emax);
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -116,10 +116,11 @@ void test_b_pos_a_upperbounded() {
     z3::expr a1 = a->GetUpper();
     z3::expr bp = b->GetLower();
 
+    z3::expr emin(c); // not used
     z3::expr emax = a1 * bp;
 
-    Bound e0(NoRestriction, Unbounded, nullptr);
-    Bound e1(NoRestriction, UpperBound, &emax);
+    Bound e0(NoRestriction, Unbounded, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -141,9 +142,10 @@ void test_b_neg_a_upperbounded() {
     z3::expr bn = b->GetLower();
 
     z3::expr emin = a1 * bn;
+    z3::expr emax(c); // not used
 
-    Bound e0(NoRestriction, LowerBound, &emin);
-    Bound e1(NoRestriction, Unbounded, nullptr);
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, Unbounded, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -168,8 +170,8 @@ void test_b_point_a_bounded() {
     z3::expr emin = z3::ite(bp >= 0, a0 * bp, a1 * bp);
     z3::expr emax = z3::ite(bp >= 0, a1 * bp, a0 * bp);
 
-    Bound e0(NoRestriction, LowerBound, &emin);
-    Bound e1(NoRestriction, UpperBound, &emax);
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -196,8 +198,8 @@ void test_both_bounded() {
     z3::expr emin = min(min(min(a0 * b0, a0 * b1), a1 * b0), a1 * b1);
     z3::expr emax = max(max(max(a0 * b0, a0 * b1), a1 * b0), a1 * b1);
 
-    Bound e0(NoRestriction, LowerBound, &emin);
-    Bound e1(NoRestriction, UpperBound, &emax);
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;

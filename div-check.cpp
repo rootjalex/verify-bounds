@@ -21,8 +21,8 @@ void test_bad_div() {
     z3::expr emin = min(-a1, a0);
     z3::expr emax = max(-a1, a0);
 
-    Bound e0(NoRestriction, BoundType::LowerBound, &emin);
-    Bound e1(NoRestriction, BoundType::UpperBound, &emax);
+    Bound e0(NoRestriction, BoundType::LowerBound, emin);
+    Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -48,8 +48,8 @@ void test_bad_div_fix() {
     z3::expr emin = min(-a1, a0);
     z3::expr emax = max(-a0, a1);
 
-    Bound e0(NoRestriction, BoundType::LowerBound, &emin);
-    Bound e1(NoRestriction, BoundType::UpperBound, &emax);
+    Bound e0(NoRestriction, BoundType::LowerBound, emin);
+    Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;

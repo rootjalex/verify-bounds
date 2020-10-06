@@ -21,8 +21,8 @@ void test_single_point() {
     z3::expr emin = a0 - b0;
     z3::expr emax = a1 - b1;
 
-    Bound e0(NoRestriction, BoundType::LowerBound, &emin);
-    Bound e1(NoRestriction, BoundType::UpperBound, &emax);
+    Bound e0(NoRestriction, BoundType::LowerBound, emin);
+    Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Sub, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -48,8 +48,8 @@ void test_bounded() {
     z3::expr emin = a0 - b1;
     z3::expr emax = a1 - b0;
 
-    Bound e0(NoRestriction, BoundType::LowerBound, &emin);
-    Bound e1(NoRestriction, BoundType::UpperBound, &emax);
+    Bound e0(NoRestriction, BoundType::LowerBound, emin);
+    Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Sub, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -72,10 +72,11 @@ void test_a_upper_b_lower() {
     z3::expr b0 = b->GetLower();
     z3::expr b1 = b->GetUpper();
 
+    z3::expr emin(c);
     z3::expr emax = a1 - b0;
 
-    Bound e0(NoRestriction, BoundType::Unbounded, nullptr);
-    Bound e1(NoRestriction, BoundType::UpperBound, &emax);
+    Bound e0(NoRestriction, BoundType::Unbounded, emin);
+    Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Sub, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
@@ -99,9 +100,10 @@ void test_a_lower_b_upper() {
     z3::expr b1 = b->GetUpper();
 
     z3::expr emin = a0 - b1;
+    z3::expr emax(c);
 
-    Bound e0(NoRestriction, BoundType::LowerBound, &emin);
-    Bound e1(NoRestriction, BoundType::Unbounded, nullptr);
+    Bound e0(NoRestriction, BoundType::LowerBound, emin);
+    Bound e1(NoRestriction, BoundType::Unbounded, emax);
 
     check(c, Operation::Sub, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
