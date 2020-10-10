@@ -18,8 +18,12 @@ add_library(core ${core_sources})
 target_link_libraries(core PUBLIC z3::libz3)
 target_include_directories(core PUBLIC include)
 
-foreach (test IN ITEMS add div-check mul sub)
+foreach (test IN ITEMS add mul sub div)
   add_executable(${test} checks/${test}.cpp)
   target_link_libraries(${test} PRIVATE core)
 endforeach ()
 
+foreach (bug IN ITEMS div-check)
+  add_executable(${bug} bugs/${bug}.cpp)
+  target_link_libraries(${bug} PRIVATE core)
+endforeach ()
