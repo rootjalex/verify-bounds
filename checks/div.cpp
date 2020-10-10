@@ -49,8 +49,34 @@ void test_bounded_neg_unbounded() {
     std::cout << "-------------------" << std::endl;
 }
 
+void test_point_unbounded() {
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Test point / unbounded Div" << std::endl;
+    z3::context c;
+
+    Interval *a = MakeInterval(c, "a", IntervalType::Point, 
+        NoRestriction, LowerBound, // lower bound
+        NoRestriction, UpperBound); // upper bound
+
+    Interval *b = MakeInterval(c, "b", IntervalType::Unknown, 
+        NoRestriction, Unbounded, // lower bound
+        NoRestriction, Unbounded); // upper bound
+
+    z3::expr a0 = a->GetLower();
+
+    z3::expr emin = -z3_abs(a0);
+    z3::expr emax = z3_abs(a0);
+
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
+
+    check(c, Operation::Div, a, b, e0, e1);
+    std::cout << "-------------------" << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     test_bounded_pos_unbounded();
     test_bounded_neg_unbounded();
+    test_point_unbounded();
 }

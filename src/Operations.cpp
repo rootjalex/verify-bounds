@@ -49,3 +49,13 @@ z3::expr halide_div(z3::context &context, z3::expr &i, z3::expr &j) {
                     i / j
                 );
 }
+
+// z3::abs is broken
+z3::expr z3_abs(z3::expr &i) {
+    z3::expr zero = i.ctx().int_val(0);
+    return ite(
+        i >= zero,
+        i,
+        -i
+    );
+}

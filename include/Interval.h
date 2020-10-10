@@ -20,8 +20,8 @@ struct Interval {
     ~Interval() { delete upper; delete lower; }
     std::string ToString(z3::model &m);
     std::string ToStringSymbolic();
-    z3::expr GetLower();
-    z3::expr GetUpper();
+    z3::expr &GetLower();
+    z3::expr &GetUpper();
 };
 
 

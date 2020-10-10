@@ -1,10 +1,10 @@
 #include "Interval.h"
 
-z3::expr Interval::GetLower() {
+z3::expr &Interval::GetLower() {
     return lower->expr;
 }
 
-z3::expr Interval::GetUpper() {
+z3::expr &Interval::GetUpper() {
     return upper->expr;
 }
 
