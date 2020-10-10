@@ -10,7 +10,7 @@ void check(z3::context &context, Operation op, Interval *a,
     apply_interval(solver, a, i);
     apply_interval(solver, b, j);
 
-    z3::expr res = generate_op(context, op, i, j);
+    z3::expr res = generate_op(op, i, j);
 
     if (e0.type != Unbounded && e1.type != Unbounded) {
         solver.add((res < e0.expr) || (res > e1.expr));
