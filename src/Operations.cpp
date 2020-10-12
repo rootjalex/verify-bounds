@@ -17,6 +17,12 @@ std::string OpToString(Operation op) {
         case Operation::Mod: {
             return "%";
         }
+        case Operation::Min: {
+            return "<min>";
+        }
+        case Operation::Max: {
+            return "<max>";
+        }
         default: {
             std::cerr << "Could not identify Operation in OpToString()!" << std::endl;
             return "OP";
@@ -41,6 +47,12 @@ z3::expr generate_op(Operation op, z3::expr &i, z3::expr &j) {
         }
         case Operation::Mod: {
             return halide_mod(i, j);
+        }
+        case Operation::Min: {
+            return min(i, j);
+        }
+        case Operation::Max: {
+            return max(i, j);
         }
         default: {
             std::cerr << "Could not identify Operation in generate_op()!" << std::endl;

@@ -8,7 +8,9 @@ enum Operation {
     Sub,
     Div,
     Mul,
-    Mod
+    Mod,
+    Min,
+    Max
 };
 
 std::string OpToString(Operation op);
