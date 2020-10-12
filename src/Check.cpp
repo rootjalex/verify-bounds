@@ -26,8 +26,15 @@ void check(z3::context &context, Operation op, Interval *a,
         std::cout << a->ToStringSymbolic();
         std::cout << " " << OpToString(op) << " ";
         std::cout << b->ToStringSymbolic() << std::endl;
-        std::cout << " = [ " << e0.ToStringSymbolic() << ", " << e1.ToStringSymbolic() << " ]" << std::endl; 
-    } else {
+        std::cout << " = [ " << e0.ToStringSymbolic() << ", " << e1.ToStringSymbolic() << " ]" << std::endl;
+    } else if (solver.check() == z3::unknown) {
+        std::cout << "ERROR: z3 unable to prove or disprove" << std::endl;
+        std::cout << "Operation: ";
+        std::cout << a->ToStringSymbolic();
+        std::cout << " " << OpToString(op) << " ";
+        std::cout << b->ToStringSymbolic() << std::endl;
+        std::cout << " = [ " << e0.ToStringSymbolic() << ", " << e1.ToStringSymbolic() << " ]" << std::endl;
+    } else { // sat
         std::cout << "failed to prove" << std::endl;
         z3::model model = solver.get_model();
 
