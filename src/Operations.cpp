@@ -14,6 +14,9 @@ std::string OpToString(Operation op) {
         case Operation::Div: {
             return "/";
         }
+        case Operation::Mod: {
+            return "%";
+        }
         default: {
             std::cerr << "Could not identify Operation in OpToString()!" << std::endl;
             return "OP";
@@ -36,6 +39,9 @@ z3::expr generate_op(Operation op, z3::expr &i, z3::expr &j) {
         case Operation::Div: {
             return halide_div(i, j);
         }
+        case Operation::Mod: {
+            return halide_mod(i, j);
+        }
         default: {
             std::cerr << "Could not identify Operation in generate_op()!" << std::endl;
         }
@@ -47,6 +53,14 @@ z3::expr halide_div(z3::expr &i, z3::expr &j) {
                 j == 0, 
                     i.ctx().int_val(0),
                     i / j
+                );
+}
+
+z3::expr halide_mod(z3::expr &i, z3::expr &j) {
+    return ite(
+                j == 0, 
+                    i.ctx().int_val(0),
+                    i % j
                 );
 }
 
