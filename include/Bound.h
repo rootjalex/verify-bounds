@@ -12,6 +12,8 @@ enum BoundType {
 enum Restriction {
     NoRestriction = 0,
     IsZero,
+    Positive,
+    Negative,
     NonPositive,
     NonNegative,
 };

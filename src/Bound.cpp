@@ -16,6 +16,12 @@ std::string Bound::ToStringSymbolic(bool print) {
         case NoRestriction: {
             return expr.to_string();
         }
+        case Restriction::Positive: {
+            return expr.to_string() + " > 0";
+        }
+        case Restriction::Negative: {
+            return expr.to_string() + " < 0";
+        }
         case Restriction::NonPositive: {
             return expr.to_string() + " <= 0";
         }
@@ -54,6 +60,14 @@ void apply_bound(z3::solver &solver, z3::expr &variable, Bound *bound) {
 void apply_restriction(z3::solver &solver, Bound *bound) {
     switch(bound->restriction) {
         case NoRestriction: {
+            return;
+        }
+        case Restriction::Positive: {
+            solver.add(bound->expr > 0);
+            return;
+        }
+        case Restriction::Negative: {
+            solver.add(bound->expr < 0);
             return;
         }
         case Restriction::NonPositive: {
