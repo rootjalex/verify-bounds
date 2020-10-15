@@ -23,7 +23,7 @@ foreach (test IN ITEMS add mul sub div mod min max)
   target_link_libraries(${test} PRIVATE core)
 endforeach ()
 
-foreach (bug IN ITEMS div-check)
+foreach (bug IN ITEMS div-check mod-check)
   add_executable(${bug} bugs/${bug}.cpp)
   target_link_libraries(${bug} PRIVATE core)
 endforeach ()

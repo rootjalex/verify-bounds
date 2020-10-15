@@ -1,5 +1,6 @@
 # verify-bounds
-Verification of Halide bounds inference engine
+Verification of [Halide](https://halide-lang.org "Halide Homepage") bounds inference engine
+
 
 # Building with CMake / vcpkg
 
@@ -51,14 +52,27 @@ dev@host:~/verify-bounds$ ls build
 Then you can run any of the checks.
 
 ```
-dev@host:~/verify-bounds$ ./build/div-check
+dev@host:~/verify-bounds$ ./build/div
 -------------------
-Test bad Div
-failed to prove
-Operation: [ (- 2), 3, ((- 2)<3)  ] / [ _, _ ]
- = [ (ite (>= (- a1) a0) a0 (- a1)), (ite (>= (- a1) a0) (- a1) a0) ]
-Resultant bounds: [(- 3), (- 2)]
-Contradiction: 1 / (- 1) = (- 1)
+Test bounded positive / unbounded Div
+proved
+Operation: [ a0 >= 0, a1 ] / [ _, _ ]
+ = [ (- a1), a1 ]
+Checking lower bound tightness... Tight.
+Checking upper bound tightness... Tight.
 -------------------
 ...
 ```
+
+
+# Bugs
+The `bugs/` subdirectory has `z3` proofs of the bugs that we have verified and changed in the [Halide codebase](https://github.com/halide/Halide). These executables are also built by the `cmake` command described above, and can be executed like so:
+
+```
+dev@host:~/verify-bounds$ ./build/mod-check 
+-------------------
+Test <any> % bounded unsigned Mod
+ NOT tight.
+-------------------
+```
+This check confirmed that a particular special case of unsiged modulo was not a tight bound (i.e. no two values in the provided intervals could be combined to produce the maximum value of the resultant bound).
