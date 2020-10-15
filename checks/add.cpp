@@ -25,6 +25,7 @@ void test_single_point() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Add, a, b, e0, e1);
+    check_tightness(c, Operation::Add, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -52,6 +53,7 @@ void test_bounded() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Add, a, b, e0, e1);
+    check_tightness(c, Operation::Add, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -79,6 +81,7 @@ void test_upper_bounded() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Add, a, b, e0, e1);
+    check_tightness(c, Operation::Add, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -106,6 +109,7 @@ void test_lower_bounded() {
     Bound e1(NoRestriction, BoundType::Unbounded, emax);
 
     check(c, Operation::Add, a, b, e0, e1);
+    check_tightness(c, Operation::Add, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 

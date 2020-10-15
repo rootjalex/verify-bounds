@@ -23,6 +23,7 @@ void test_single_point() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Mod, a, b, e0, e1);
+    check_tightness(c, Operation::Mod, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -47,6 +48,7 @@ void test_pos_lower_mod_unbounded() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Mod, a, b, e0, e1);
+    check_tightness(c, Operation::Mod, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -71,6 +73,7 @@ void test_mod_pos_bounded() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Mod, a, b, e0, e1);
+    check_tightness(c, Operation::Mod, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -96,6 +99,7 @@ void test_mod_bounded() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Mod, a, b, e0, e1);
+    check_tightness(c, Operation::Mod, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 

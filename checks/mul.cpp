@@ -23,6 +23,7 @@ void test_single_point() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -45,6 +46,7 @@ void test_b_zero() {
     Bound e1(IsZero, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -71,6 +73,7 @@ void test_b_pos_a_bounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -98,6 +101,7 @@ void test_b_neg_a_bounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -123,6 +127,7 @@ void test_b_pos_a_upperbounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -148,6 +153,7 @@ void test_b_neg_a_upperbounded() {
     Bound e1(NoRestriction, Unbounded, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -174,6 +180,7 @@ void test_b_point_a_bounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -202,6 +209,7 @@ void test_both_bounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 

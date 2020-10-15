@@ -23,6 +23,7 @@ void test_single_point() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Min, a, b, e0, e1);
+    check_tightness(c, Operation::Min, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -50,6 +51,7 @@ void test_not_point() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Min, a, b, e0, e1);
+    check_tightness(c, Operation::Min, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 

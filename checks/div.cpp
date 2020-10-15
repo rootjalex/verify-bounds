@@ -22,6 +22,7 @@ void test_bounded_pos_unbounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -46,6 +47,7 @@ void test_bounded_neg_unbounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -71,6 +73,7 @@ void test_point_unbounded() {
     Bound e1(NoRestriction, UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -96,6 +99,7 @@ void test_bounded_unbounded() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -121,6 +125,7 @@ void test_single_points() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -147,6 +152,7 @@ void test_bounded_single_pos() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -172,6 +178,7 @@ void test_lower_bounded_single_pos() {
     Bound e1(NoRestriction, BoundType::Unbounded, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -197,6 +204,7 @@ void test_upper_bounded_single_pos() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -223,6 +231,7 @@ void test_bounded_single_neg() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -248,6 +257,7 @@ void test_lower_bounded_single_neg() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -273,6 +283,7 @@ void test_upper_bounded_single_neg() {
     Bound e1(NoRestriction, BoundType::Unbounded, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
@@ -300,6 +311,7 @@ void test_bounded_single_point() {
     Bound e1(NoRestriction, BoundType::UpperBound, emax);
 
     check(c, Operation::Div, a, b, e0, e1);
+    check_tightness(c, Operation::Div, a, b, e0, e1);
     std::cout << "-------------------" << std::endl;
 }
 
