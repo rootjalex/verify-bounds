@@ -74,5 +74,13 @@ dev@host:~/verify-bounds$ ./build/mod-check
 Test <any> % bounded unsigned Mod
  NOT tight.
 -------------------
+-------------------
+Test <any> % bounded unsigned 0 Mod fix
+ Tight.
+-------------------
+-------------------
+Test <any> % bounded unsigned not 0 Mod fix
+ Tight.
+-------------------
 ```
-This check confirmed that a particular special case of unsiged modulo was not a tight bound (i.e. no two values in the provided intervals could be combined to produce the maximum value of the resultant bound).
+This check confirmed that a particular special case of unsiged modulo was not a tight bound (i.e. no two values in the provided intervals could be combined to produce the maximum value of the resultant bound). It also proves that our bug fix is tight.
