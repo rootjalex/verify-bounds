@@ -176,6 +176,9 @@ Definition bounded (it : Interval) : Prop :=
 Definition is_positive_point (it : Interval) : Prop :=
     exists n', (bounded it) /\ (minv it) = Some n' /\ (maxv it) = Some n' /\ n' > 0.
 
+Definition is_negative_point (it : Interval) : Prop :=
+    exists n', (bounded it) /\ (minv it) = Some n' /\ (maxv it) = Some n' /\ n' < 0.
+
 Require Import Tactics.
 Require Import Ring.
 
@@ -237,18 +240,20 @@ Proof.
 (* TODO: do this later, how is this not built in? *)
 Admitted. 
 
-Lemma leq_true : forall (i : t),
+Lemma le_refl : forall (i : t),
     i <= i <= i.
 Proof.
-    intros.
-    trivial.
 (* TODO: do this later, how is this not built in? *)
 Admitted.
 
-Lemma div_same_bounded : forall (i j n : t),
+Lemma div_pos_bounded : forall (i j n : t),
     n > 0 /\ i <= j -> i / n <= j / n.
 Proof.
-    intros i j n [Hnpos Hileqj].
+Admitted.
+
+Lemma div_neg_bounded : forall (i j n : t),
+    n < 0 /\ i <= j -> j / n <= i / n.
+Proof.
 Admitted.
 
 Definition div_bounded_single_pos_point (a b : Interval) : Interval :=
@@ -291,7 +296,7 @@ Proof.
         rewrite E.
         unfold contains_numeric. 
         unfold contains. simpl.
-        apply leq_true.
+        apply le_refl.
     }
     { (* NOT equal to 0 *)
         apply value_bounded in Hb_contains_j.
@@ -304,12 +309,12 @@ Proof.
         {
             destruct Ha_contains_i as [Higt Hilt].
             rewrite Hj_equalsn'.
-            apply div_same_bounded.
+            apply div_pos_bounded.
             intuition. 
         }
         {
             rewrite Hj_equalsn'.
-            apply div_same_bounded.
+            apply div_pos_bounded.
             intuition.
         }
     }
@@ -322,7 +327,6 @@ Definition div_lower_bounded_single_pos_point (a b : Interval) : Interval :=
         let e1 := None in
     Build_Interval e0 e1.
 
-(* Begin Div proofs *)
 Theorem div_lower_bounded_single_pos_point_ok : forall (a b : Interval),
     (only_lower_bounded a /\ is_positive_point b) ->
         let r := (div_lower_bounded_single_pos_point a b) in
@@ -355,7 +359,7 @@ Proof.
         rewrite E.
         unfold contains_numeric. 
         unfold contains. simpl.
-        apply leq_true.
+        apply le_refl.
     }
     { (* NOT equal to 0 *)
         apply value_bounded in Hb_contains_j.
@@ -365,7 +369,170 @@ Proof.
         unfold contains_numeric. 
         unfold contains. simpl.
         rewrite Hj_equalsn'.
-        apply div_same_bounded.
+        apply div_pos_bounded.
         intuition.
     }
 Qed.
+
+
+Definition div_upper_bounded_single_pos_point (a b : Interval) : Interval :=
+        let a1 := (maxv a) in
+        let bp := (minv b) in
+        let e0 := None in
+        let e1 := (div a1 bp) in
+    Build_Interval e0 e1.
+
+Theorem div_upper_bounded_single_pos_point_ok : forall (a b : Interval),
+    (only_upper_bounded a /\ is_positive_point b) ->
+        let r := (div_upper_bounded_single_pos_point a b) in
+        forall (i j : t),
+            (contains a i) /\ (contains b j) ->
+                (contains_numeric r (div (Some i) (Some j))).
+Proof.
+    intros.
+    destruct H as [Ha_ub Hb_single].
+    destruct H0 as [Ha_contains_i Hb_contains_j].
+    unfold only_upper_bounded in Ha_ub.
+    destruct Ha_ub as [Ha_max Ha_min].
+    apply upper_bounded_implies_t_bound in Ha_max.
+    deex. (* exists in Ha_lb *)
+    unfold contains in *.
+    rewrite Ha_min in Ha_contains_i.
+    rewrite Ha_max in Ha_contains_i.
+    unfold is_positive_point in Hb_single.
+    deex. destruct Hb_single as [Hb_bounded [ Hb_min [ Hb_max Hb_pos ] ] ].
+    rewrite Hb_min in Hb_contains_j.
+    rewrite Hb_max in Hb_contains_j.
+    unfold r.
+    unfold div_upper_bounded_single_pos_point.
+    rewrite Ha_max. rewrite Hb_min.
+    unfold div.
+    destruct (eqb n' 0) eqn:E. (* why do this? 0 < n' is hypothesis *)
+    {
+        apply value_bounded in Hb_contains_j.
+        rewrite <- Hb_contains_j in E.
+        rewrite E.
+        unfold contains_numeric. 
+        unfold contains. simpl.
+        apply le_refl.
+    }
+    { (* NOT equal to 0 *)
+        apply value_bounded in Hb_contains_j.
+        rewrite <- Hb_contains_j in E.
+        rename Hb_contains_j into Hj_equalsn'.
+        rewrite E.
+        unfold contains_numeric. 
+        unfold contains. simpl.
+        rewrite Hj_equalsn'.
+        apply div_pos_bounded.
+        intuition.
+    }
+Qed.
+
+
+Definition div_bounded_single_neg_point (a b : Interval) : Interval :=
+        let a0 := (minv a) in
+        let a1 := (maxv a) in
+        let bn := (minv b) in
+        let e0 := (div a1 bn) in
+        let e1 := (div a0 bn) in
+    Build_Interval e0 e1.
+
+Theorem div_bounded_single_neg_point_ok : forall (a b : Interval),
+    (bounded a /\ is_negative_point b) ->
+        let r := (div_bounded_single_neg_point a b) in
+        forall (i j : t),
+            (contains a i) /\ (contains b j) ->
+                (contains_numeric r (div (Some i) (Some j))).
+Proof.
+    intros.
+    destruct H as [Ha_bounded Hb_single].
+    destruct H0 as [Ha_contains_i Hb_contains_j].
+    apply bounded_implies_t_bounds in Ha_bounded.
+    destruct Ha_bounded as [Ha_min Ha_max].
+    deex.
+    unfold contains in *.
+    rewrite Ha_min in Ha_contains_i.
+    rewrite Ha_max in Ha_contains_i.
+    unfold is_negative_point in Hb_single.
+    deex. destruct Hb_single as [Hb_bounded [ Hb_min [ Hb_max Hb_pos ] ] ].
+    rewrite Hb_min in Hb_contains_j.
+    rewrite Hb_max in Hb_contains_j.
+    unfold r.
+    unfold div_bounded_single_neg_point.
+    rewrite Ha_min. rewrite Hb_min.
+    rewrite Ha_max. unfold div.
+    apply value_bounded in Hb_contains_j.
+    rewrite Hb_contains_j.
+    destruct (eqb n' 0) eqn:E.
+    { (* equal to 0 *)
+        unfold contains_numeric. 
+        unfold contains. simpl.
+        apply le_refl.
+    }
+    { (* NOT equal to 0 *)
+        unfold contains_numeric. 
+        unfold contains. simpl.
+        split.
+        {
+            destruct Ha_contains_i as [Higt Hilt].
+            apply div_neg_bounded.
+            intuition. 
+        }
+        {
+            apply div_neg_bounded.
+            intuition.
+        }
+    }
+Qed.
+
+
+Definition div_lower_bounded_single_neg_point (a b : Interval) : Interval :=
+        let a0 := (minv a) in
+        let bn := (minv b) in
+        let e0 := None in
+        let e1 := (div a0 bn) in
+    Build_Interval e0 e1.
+
+Theorem div_lower_bounded_single_neg_point_ok : forall (a b : Interval),
+    (only_lower_bounded a /\ is_negative_point b) ->
+        let r := (div_lower_bounded_single_neg_point a b) in
+        forall (i j : t),
+            (contains a i) /\ (contains b j) ->
+                (contains_numeric r (div (Some i) (Some j))).
+Proof.
+    intros.
+    destruct H as [Ha_bounded Hb_single].
+    destruct H0 as [Ha_contains_i Hb_contains_j].
+    unfold only_lower_bounded in Ha_bounded.
+    destruct Ha_bounded as [Ha_min Ha_max].
+    apply lower_bounded_implies_t_bound in Ha_min.
+    destruct Ha_min as [a0 Ha_min].
+    unfold contains in *.
+    rewrite Ha_min in Ha_contains_i.
+    rewrite Ha_max in Ha_contains_i.
+    unfold is_negative_point in Hb_single.
+    destruct Hb_single as [bn Hb_single].
+    destruct Hb_single as [Hb_bounded [ Hb_min [ Hb_max Hb_pos ] ] ].
+    rewrite Hb_min in Hb_contains_j.
+    rewrite Hb_max in Hb_contains_j.
+    unfold r.
+    unfold div_lower_bounded_single_neg_point.
+    rewrite Ha_min. rewrite Hb_min.
+    unfold div.
+    apply value_bounded in Hb_contains_j.
+    rewrite Hb_contains_j.
+    destruct (eqb bn 0) eqn:E.
+    { (* equal to 0 *)
+        unfold contains_numeric. 
+        unfold contains. simpl.
+        apply le_refl.
+    }
+    { (* NOT equal to 0 *)
+        unfold contains_numeric. 
+        unfold contains. simpl.
+        apply div_neg_bounded.
+        intuition.
+    }
+Qed.
+
