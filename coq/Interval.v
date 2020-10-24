@@ -99,14 +99,32 @@ Proof.
 Qed.
 
 
+
+(* sign rule imported from stdlib bc import is broken *)
+Lemma div_opp_r : forall a b, b~=0 -> a/(-b) == -(a/b).
+Proof.
+(* intros. symmetry.
+apply div_unique with (a mod b).
+rewrite abs_opp; now apply mod_always_pos.
+rewrite mul_opp_opp; now apply div_mod.
+Qed. *)
+Admitted.
+
 Lemma div_neg_bounded : forall (i j n : t),
     0 > n /\ i <= j -> j / n <= i / n.
 Proof.
   intros.
   destruct H.
+  apply opp_le_mono.
+  rewrite <- div_opp_r.
+  rewrite <- div_opp_r.
+  rewrite <- opp_pos_neg in H.
   apply div_le_mono.
-  (* TODO *)
-Admitted.
+  - intuition.
+  - intuition.
+  - apply lt_neq. assumption.
+  - apply lt_neq. assumption.
+Qed.
 
 (* Begin Interval Definition *)
 
@@ -662,4 +680,3 @@ Proof.
         assumption.
     }
 Qed.
-
