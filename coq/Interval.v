@@ -8,12 +8,28 @@
 (*         *     (see LICENSE file for the text of the license)         *)
 (************************************************************************)
 
-(* Require Import ZAxioms ZMulOrder ZSgnAbs NZDiv.
+Require Import ZAxioms ZMulOrder ZSgnAbs NZDiv.
 Require Import NZAdd NZOrder ZAdd NZBase.
-Require Import GenericMinMax ZMaxMin. *)
-Require Import Lia.
+Require Import GenericMinMax ZMaxMin.
 
-Require Import ZAxioms ZMulOrder ZSgnAbs NZDiv ZMul ZLt.
+
+(** * Euclidean Division for integers, Euclid convention
+    We use here the "usual" formulation of the Euclid Theorem
+    [forall a b, b<>0 -> exists r q, a = b*q+r /\ 0 <= r < |b| ]
+    The outcome of the modulo function is hence always positive.
+    This corresponds to convention "E" in the following paper:
+    R. Boute, "The Euclidean definition of the functions div and mod",
+    ACM Transactions on Programming Languages and Systems,
+    Vol. 14, No.2, pp. 127-144, April 1992.
+    See files [ZDivTrunc] and [ZDivFloor] for others conventions.
+    We simply extend NZDiv with a bound for modulo that holds
+    regardless of the sign of a and b. This new specification
+    subsume mod_bound_pos, which nonetheless stays there for
+    subtyping. Note also that ZAxiomSig now already contain
+    a div and a modulo (that follow the Floor convention).
+    We just ignore them here.
+*)
+
 Module Type EuclidSpec (Import A : ZAxiomsSig')(Import B : DivMod A).
  Axiom mod_always_pos : forall a b, b ~= 0 -> 0 <= B.modulo a b < abs b.
 End EuclidSpec.
@@ -26,23 +42,57 @@ Module ZEuclidProp
  (Import C : ZSgnAbsProp A B)
  (Import D : ZEuclid A).
 
-(* We put notations in a scope, to avoid warnings about redefinitions of notations *)
-Infix "/" := D.div : euclid.
-Infix "mod" := D.modulo : euclid.
-Local Open Scope euclid.
+ (** We put notations in a scope, to avoid warnings about
+     redefinitions of notations *)
+(* Declare Scope euclid. *)
+ Infix "/" := D.div : euclid.
+ Infix "mod" := D.modulo : euclid.
+ Local Open Scope euclid.
 
+Module Import Private_NZDiv := Nop <+ NZDivProp A D B.
 
-Locate t.
- (* Module Import Private_NZDiv := Nop <+ NZDivProp A D B.
+Lemma eq_bounded : forall (i n : t),
+    n <= i <= n -> i == n.
+Proof.
+  intros.
+  destruct H.
+  apply le_antisymm.
+  assumption.
+  assumption.
+Qed.
+Lemma leq_true : forall (i : t),
+    i <= i <= i.
+Proof.
+  intros.
+  split.
+  apply le_refl.
+  apply le_refl.
+Qed.
+Lemma div_pos_bounded : forall (i j n : t),
+    n > 0 /\ i <= j -> i / n <= j / n.
+Proof.
+  intros.
+  destruct H.
+  apply div_le_mono.
+  assumption.
+  (* TODO *)
+Admitted.
+  (* assumption.
+  split.
+  assumption. *)
+(* Qed. *)
 
-
- Require Import BinInt.
- Delimit Scope Int_scope with I.
- Local Open Scope Z_scope.
-
- Locate t. *)
+Lemma div_neg_bounded : forall (i j n : t),
+    0 > n /\ i <= j -> j / n <= i / n.
+Proof.
+  intros.
+  destruct H.
+  (* TODO *)
+Admitted.
 
 (* Begin Interval Definition *)
+
+Require Import Tactics Ring Omega.
 
 (* this is option t but with a diff name for clarity *)
 Inductive Numeric : Type :=
@@ -89,11 +139,29 @@ Definition plus (n1 n2 : Numeric) : Numeric :=
     | _, _ => None
     end.
 
-Definition div (n1 n2 : Numeric) : Numeric :=
+Lemma Halide_div : forall (i j : t),
+    j == 0 -> i / j == 0.
+Proof.
+(* Definition of Halide div by 0 *)
+Admitted.
+
+Definition div_numeric (n1 n2 : Numeric) : Numeric :=
     match n1, n2 with 
-    | Some x, Some y => if (eqb y 0) then Some (0) else Some (x / y)
+    | Some x, Some y => Some (x / y)
     | _, _ => None
     end.
+
+(* Definition Halide_div (n1 n2 : Numeric) : Numeric :=
+    match n1, n2 with
+    | Some x, Some y => if (eqb y 0) then Some (0) else  Some (x / y)
+    
+    (* match (y == 0) with 
+                        | True => Some (0)
+                        | False => Some (x / y)
+                        end *)
+    (* if (eqb y 0) then Some (0) else Some (x / y) *)
+    | _, _ => None
+    end. *)
 
 (* lt only defined for bounded values *)
 Definition lt_numeric (n1 n2: Numeric) : Prop :=
@@ -179,9 +247,6 @@ Definition is_positive_point (it : Interval) : Prop :=
 Definition is_negative_point (it : Interval) : Prop :=
     exists n', (bounded it) /\ (minv it) = Some n' /\ (maxv it) = Some n' /\ n' < 0.
 
-Require Import Tactics.
-Require Import Ring.
-
 Lemma lower_bounded_implies_t_bound :
     forall (it : Interval),
     (lower_bounded it) -> 
@@ -231,16 +296,14 @@ Ltac deex :=
         destruct H as [name' H]
         end.
 
-Require Import Omega.
 
-
-Lemma value_bounded : forall (i n : t),
+(* Lemma value_bounded : forall (i n : t),
     n <= i <= n -> i = n.
 Proof.
 (* TODO: do this later, how is this not built in? *)
-Admitted. 
+Admitted.  *)
 
-Lemma le_refl : forall (i : t),
+(* Lemma le_refl : forall (i : t),
     i <= i <= i.
 Proof.
 (* TODO: do this later, how is this not built in? *)
@@ -254,14 +317,14 @@ Admitted.
 Lemma div_neg_bounded : forall (i j n : t),
     n < 0 /\ i <= j -> j / n <= i / n.
 Proof.
-Admitted.
+Admitted. *)
 
 Definition div_bounded_single_pos_point (a b : Interval) : Interval :=
         let a0 := (minv a) in
         let a1 := (maxv a) in
         let bp := (minv b) in
-        let e0 := (div a0 bp) in
-        let e1 := (div a1 bp) in
+        let e0 := (div_numeric a0 bp) in
+        let e1 := (div_numeric a1 bp) in
     Build_Interval e0 e1.
 
 (* Begin Div proofs *)
@@ -270,7 +333,7 @@ Theorem div_bounded_single_pos_point_ok : forall (a b : Interval),
         let r := (div_bounded_single_pos_point a b) in
         forall (i j : t),
             (contains a i) /\ (contains b j) ->
-                (contains_numeric r (div (Some i) (Some j))).
+                (contains_numeric r (div_numeric (Some i) (Some j))).
 Proof.
     intros.
     destruct H as [Ha_bounded Hb_single].
@@ -288,42 +351,50 @@ Proof.
     unfold r.
     unfold div_bounded_single_pos_point.
     rewrite Ha_min. rewrite Hb_min.
-    rewrite Ha_max. unfold div.
-    destruct (eqb n' 0) eqn:E.
-    { (* equal to 0 *)
-        apply value_bounded in Hb_contains_j.
-        rewrite <- Hb_contains_j in E.
-        rewrite E.
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        apply le_refl.
+    rewrite Ha_max. unfold div_numeric.
+    apply eq_bounded in Hb_contains_j.
+    unfold contains_numeric. 
+    unfold contains.
+    simpl.
+    cut (n' == 0 \/ 0 ~= n').
+    {
+        intro E. destruct E.
+        {
+            
+            rewrite Hb_contains_j.
+            rewrite Halide_div.
+            rewrite Halide_div.
+            rewrite Halide_div.
+            apply leq_true.
+            assumption.
+            assumption.
+            assumption.
+        }
+        {
+            rewrite Hb_contains_j.
+            split.
+            {
+                apply div_pos_bounded.
+                intuition.
+            }
+            {
+                apply div_pos_bounded.
+                intuition.
+            } 
+        }
     }
-    { (* NOT equal to 0 *)
-        apply value_bounded in Hb_contains_j.
-        rewrite <- Hb_contains_j in E.
-        rename Hb_contains_j into Hj_equalsn'.
-        rewrite E.
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        split.
-        {
-            destruct Ha_contains_i as [Higt Hilt].
-            rewrite Hj_equalsn'.
-            apply div_pos_bounded.
-            intuition. 
-        }
-        {
-            rewrite Hj_equalsn'.
-            apply div_pos_bounded.
-            intuition.
-        }
+    {
+        right.
+        apply lt_neq.
+        assumption.
     }
 Qed.
+
 
 Definition div_lower_bounded_single_pos_point (a b : Interval) : Interval :=
         let a0 := (minv a) in
         let bp := (minv b) in
-        let e0 := (div a0 bp) in
+        let e0 := (div_numeric a0 bp) in
         let e1 := None in
     Build_Interval e0 e1.
 
@@ -332,7 +403,7 @@ Theorem div_lower_bounded_single_pos_point_ok : forall (a b : Interval),
         let r := (div_lower_bounded_single_pos_point a b) in
         forall (i j : t),
             (contains a i) /\ (contains b j) ->
-                (contains_numeric r (div (Some i) (Some j))).
+                (contains_numeric r (div_numeric (Some i) (Some j))).
 Proof.
     intros.
     destruct H as [Ha_lb Hb_single].
@@ -351,35 +422,40 @@ Proof.
     unfold r.
     unfold div_lower_bounded_single_pos_point.
     rewrite Ha_min. rewrite Hb_min.
-    unfold div.
-    destruct (eqb n' 0) eqn:E. (* why do this? 0 < n' is hypothesis *)
+    unfold div_numeric.
+    apply eq_bounded in Hb_contains_j.
+    unfold contains_numeric. 
+    unfold contains.
+    simpl.
+    rewrite Hb_contains_j.
+    cut (n' == 0 \/ 0 ~= n').
     {
-        apply value_bounded in Hb_contains_j.
-        rewrite <- Hb_contains_j in E.
-        rewrite E.
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        apply le_refl.
+        intro E. 
+        destruct E.
+        {
+            rewrite Halide_div.
+            rewrite Halide_div.
+            apply leq_true.
+            assumption.
+            assumption.
+        }
+        {
+            apply div_pos_bounded.
+            intuition.
+        }
     }
-    { (* NOT equal to 0 *)
-        apply value_bounded in Hb_contains_j.
-        rewrite <- Hb_contains_j in E.
-        rename Hb_contains_j into Hj_equalsn'.
-        rewrite E.
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        rewrite Hj_equalsn'.
-        apply div_pos_bounded.
-        intuition.
+    {
+        right.
+        apply lt_neq.
+        assumption.
     }
 Qed.
-
 
 Definition div_upper_bounded_single_pos_point (a b : Interval) : Interval :=
         let a1 := (maxv a) in
         let bp := (minv b) in
         let e0 := None in
-        let e1 := (div a1 bp) in
+        let e1 := (div_numeric a1 bp) in
     Build_Interval e0 e1.
 
 Theorem div_upper_bounded_single_pos_point_ok : forall (a b : Interval),
@@ -387,7 +463,7 @@ Theorem div_upper_bounded_single_pos_point_ok : forall (a b : Interval),
         let r := (div_upper_bounded_single_pos_point a b) in
         forall (i j : t),
             (contains a i) /\ (contains b j) ->
-                (contains_numeric r (div (Some i) (Some j))).
+                (contains_numeric r (div_numeric (Some i) (Some j))).
 Proof.
     intros.
     destruct H as [Ha_ub Hb_single].
@@ -406,36 +482,41 @@ Proof.
     unfold r.
     unfold div_upper_bounded_single_pos_point.
     rewrite Ha_max. rewrite Hb_min.
-    unfold div.
-    destruct (eqb n' 0) eqn:E. (* why do this? 0 < n' is hypothesis *)
+    unfold div_numeric.
+    apply eq_bounded in Hb_contains_j.
+    unfold contains_numeric. 
+    unfold contains.
+    simpl.
+    rewrite Hb_contains_j.
+    cut (n' == 0 \/ 0 ~= n').
     {
-        apply value_bounded in Hb_contains_j.
-        rewrite <- Hb_contains_j in E.
-        rewrite E.
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        apply le_refl.
+        intro E. 
+        destruct E.
+        {
+            rewrite Halide_div.
+            rewrite Halide_div.
+            apply leq_true.
+            assumption.
+            assumption.
+        }
+        {
+            apply div_pos_bounded.
+            intuition.
+        }
     }
-    { (* NOT equal to 0 *)
-        apply value_bounded in Hb_contains_j.
-        rewrite <- Hb_contains_j in E.
-        rename Hb_contains_j into Hj_equalsn'.
-        rewrite E.
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        rewrite Hj_equalsn'.
-        apply div_pos_bounded.
-        intuition.
+    {
+        right.
+        apply lt_neq.
+        assumption.
     }
 Qed.
-
 
 Definition div_bounded_single_neg_point (a b : Interval) : Interval :=
         let a0 := (minv a) in
         let a1 := (maxv a) in
         let bn := (minv b) in
-        let e0 := (div a1 bn) in
-        let e1 := (div a0 bn) in
+        let e0 := (div_numeric a1 bn) in
+        let e1 := (div_numeric a0 bn) in
     Build_Interval e0 e1.
 
 Theorem div_bounded_single_neg_point_ok : forall (a b : Interval),
@@ -443,7 +524,7 @@ Theorem div_bounded_single_neg_point_ok : forall (a b : Interval),
         let r := (div_bounded_single_neg_point a b) in
         forall (i j : t),
             (contains a i) /\ (contains b j) ->
-                (contains_numeric r (div (Some i) (Some j))).
+                (contains_numeric r (div_numeric (Some i) (Some j))).
 Proof.
     intros.
     destruct H as [Ha_bounded Hb_single].
@@ -461,37 +542,52 @@ Proof.
     unfold r.
     unfold div_bounded_single_neg_point.
     rewrite Ha_min. rewrite Hb_min.
-    rewrite Ha_max. unfold div.
-    apply value_bounded in Hb_contains_j.
+    rewrite Ha_max. 
+    unfold div_numeric.
+    apply eq_bounded in Hb_contains_j.
+    unfold contains_numeric. 
+    unfold contains.
+    simpl.
     rewrite Hb_contains_j.
-    destruct (eqb n' 0) eqn:E.
-    { (* equal to 0 *)
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        apply le_refl.
+    cut (n' == 0 \/ n' ~= 0).
+    {
+        intro E. 
+        destruct E.
+        {
+            rewrite Halide_div.
+            rewrite Halide_div.
+            rewrite Halide_div.
+            apply leq_true.
+            assumption.
+            assumption.
+            assumption.
+        }
+        {
+            split.
+            {
+                apply div_neg_bounded.
+                intuition.
+            }
+            {
+                apply div_neg_bounded.
+                intuition.
+            }
+        }
     }
-    { (* NOT equal to 0 *)
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        split.
-        {
-            destruct Ha_contains_i as [Higt Hilt].
-            apply div_neg_bounded.
-            intuition. 
-        }
-        {
-            apply div_neg_bounded.
-            intuition.
-        }
+    {
+        right.
+        apply lt_neq.
+        assumption.
     }
 Qed.
+    
 
 
 Definition div_lower_bounded_single_neg_point (a b : Interval) : Interval :=
         let a0 := (minv a) in
         let bn := (minv b) in
         let e0 := None in
-        let e1 := (div a0 bn) in
+        let e1 := (div_numeric a0 bn) in
     Build_Interval e0 e1.
 
 Theorem div_lower_bounded_single_neg_point_ok : forall (a b : Interval),
@@ -499,7 +595,7 @@ Theorem div_lower_bounded_single_neg_point_ok : forall (a b : Interval),
         let r := (div_lower_bounded_single_neg_point a b) in
         forall (i j : t),
             (contains a i) /\ (contains b j) ->
-                (contains_numeric r (div (Some i) (Some j))).
+                (contains_numeric r (div_numeric (Some i) (Some j))).
 Proof.
     intros.
     destruct H as [Ha_bounded Hb_single].
@@ -519,20 +615,32 @@ Proof.
     unfold r.
     unfold div_lower_bounded_single_neg_point.
     rewrite Ha_min. rewrite Hb_min.
-    unfold div.
-    apply value_bounded in Hb_contains_j.
+
+    unfold div_numeric.
+    apply eq_bounded in Hb_contains_j.
+    unfold contains_numeric. 
+    unfold contains.
+    simpl.
     rewrite Hb_contains_j.
-    destruct (eqb bn 0) eqn:E.
-    { (* equal to 0 *)
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        apply le_refl.
+    cut (bn == 0 \/ bn ~= 0).
+    {
+        intro E. 
+        destruct E.
+        {
+            rewrite Halide_div.
+            rewrite Halide_div.
+            apply leq_true.
+            assumption.
+            assumption.
+        }
+        {
+            apply div_neg_bounded.
+            intuition.
+        }
     }
-    { (* NOT equal to 0 *)
-        unfold contains_numeric. 
-        unfold contains. simpl.
-        apply div_neg_bounded.
-        intuition.
+    {
+        right.
+        apply lt_neq.
+        assumption.
     }
 Qed.
-
