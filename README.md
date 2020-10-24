@@ -65,6 +65,14 @@ Checking upper bound tightness... Tight.
 ```
 
 
+# z3
+Some parts of this verification project can be done with the [z3 Theorem Prover](https://github.com/Z3Prover/z3), and this includes all code in `checks/` and `bugs/` using the C++ API. Some test cases written in `z3` do not run to completion, and for these, we require more rigourous, manual proofs.
+
+
+# Coq
+Where `z3` fails, we rely on the [Coq Proof Assistant](https://github.com/coq/coq). The `coq/` subdirectory has our source code for representing Halide's intervals and boundary conditions, as well as the proofs for interval rules that are not proved by `z3`.
+
+
 # Bugs
 The `bugs/` subdirectory has `z3` proofs of the bugs that we have verified and changed in the [Halide codebase](https://github.com/halide/Halide). These executables are also built by the `cmake` command described above, and can be executed like so:
 
