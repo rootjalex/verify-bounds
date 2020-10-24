@@ -51,6 +51,26 @@ Module ZEuclidProp
 
 Module Import Private_NZDiv := Nop <+ NZDivProp A D B.
 
+(* Copied in from stdlib because import seems to fail *)
+Lemma div_le_mono : forall a b c, 0<c -> a<=b -> a/c <= b/c.
+Proof.
+    intros a b c Hc Hab.
+    rewrite lt_eq_cases in Hab. destruct Hab as [LT|EQ];
+    [|rewrite EQ; order].
+    rewrite <- lt_succ_r.
+    rewrite (mul_lt_mono_pos_l c) by order.
+    nzsimpl.
+    rewrite (add_lt_mono_r _ _ (a mod c)).
+    rewrite <- div_mod by order.
+    apply lt_le_trans with b; trivial.
+    rewrite (div_mod b c) at 1 by order.
+    rewrite <- add_assoc, <- add_le_mono_l.
+    apply le_trans with (c+0).
+    nzsimpl; destruct (mod_always_pos b c); try order.
+    rewrite abs_eq in *; order.
+    rewrite <- add_le_mono_l. destruct (mod_always_pos a c); order.
+Qed.
+
 Lemma eq_bounded : forall (i n : t),
     n <= i <= n -> i == n.
 Proof.
@@ -75,18 +95,16 @@ Proof.
   destruct H.
   apply div_le_mono.
   assumption.
-  (* TODO *)
-Admitted.
-  (* assumption.
-  split.
-  assumption. *)
-(* Qed. *)
+  assumption.
+Qed.
+
 
 Lemma div_neg_bounded : forall (i j n : t),
     0 > n /\ i <= j -> j / n <= i / n.
 Proof.
   intros.
   destruct H.
+  apply div_le_mono.
   (* TODO *)
 Admitted.
 
@@ -644,3 +662,4 @@ Proof.
         assumption.
     }
 Qed.
+
