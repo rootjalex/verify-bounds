@@ -322,7 +322,7 @@ int main(int argc, char** argv)
     test_bounded_neg_unbounded();
     test_point_unbounded();
     test_bounded_unbounded();
-    // NONE complete
+    // NONE complete - proven in $ROOT/coq/Interval.v
     // test_bounded_single_pos();
     // test_lower_bounded_single_pos();
     // test_upper_bounded_single_pos();

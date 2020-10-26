@@ -88,6 +88,7 @@ Proof.
   apply le_refl.
   apply le_refl.
 Qed.
+
 Lemma div_pos_bounded : forall (i j n : t),
     n > 0 /\ i <= j -> i / n <= j / n.
 Proof.
@@ -97,8 +98,6 @@ Proof.
   assumption.
   assumption.
 Qed.
-
-
 
 (* sign rule imported from stdlib bc import is broken *)
 Lemma div_opp_r : forall a b, b~=0 -> a/(-b) == -(a/b).
@@ -680,3 +679,68 @@ Proof.
         assumption.
     }
 Qed.
+
+
+
+Definition div_upper_bounded_single_neg_point (a b : Interval) : Interval :=
+        let a1 := (maxv a) in
+        let bn := (minv b) in
+        let e0 := (div_numeric a1 bn) in
+        let e1 := None in
+    Build_Interval e0 e1.
+
+Theorem div_upper_bounded_single_neg_point_ok : forall (a b : Interval),
+    (only_upper_bounded a /\ is_negative_point b) ->
+        let r := (div_upper_bounded_single_neg_point a b) in
+        forall (i j : t),
+            (contains a i) /\ (contains b j) ->
+                (contains_numeric r (div_numeric (Some i) (Some j))).
+Proof.
+    intros.
+    destruct H as [Ha_ub Hb_single].
+    destruct H0 as [Ha_contains_i Hb_contains_j].
+    unfold only_upper_bounded in Ha_ub.
+    destruct Ha_ub as [Ha_max Ha_min].
+    apply upper_bounded_implies_t_bound in Ha_max.
+    deex. (* exists in Ha_max*)
+    unfold contains in *.
+    rewrite Ha_min in Ha_contains_i.
+    rewrite Ha_max in Ha_contains_i.
+    unfold is_negative_point in Hb_single.
+    deex. destruct Hb_single as [Hb_bounded [ Hb_min [ Hb_max Hb_pos ] ] ].
+    rewrite Hb_min in Hb_contains_j.
+    rewrite Hb_max in Hb_contains_j.
+    apply eq_bounded in Hb_contains_j.
+    unfold r.
+    unfold div_upper_bounded_single_neg_point.
+    rewrite Ha_max. rewrite Hb_min.
+    unfold div_numeric.
+    unfold contains_numeric. 
+    unfold contains.
+    simpl.
+    rewrite Hb_contains_j.
+    (* TODO: can rewrite the below without 0 case, but this shows req bounds could be looser*)
+    cut (n' == 0 \/ n' ~= 0).
+    {
+        intro E. 
+        destruct E.
+        {
+            rewrite Halide_div.
+            rewrite Halide_div.
+            apply leq_true.
+            assumption.
+            assumption.
+        }
+        {
+            apply div_neg_bounded.
+            intuition.
+        }
+    }
+    {
+        right.
+        apply lt_neq.
+        assumption.
+    }
+Qed.
+
+(* div_bounded_single_point is proven by the above two cases *)
