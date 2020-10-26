@@ -6,7 +6,7 @@
 // TODO: need framework for doing bv intervals
 void test_unknown_and_pos_bounded() {
     std::cout << "-------------------" << std::endl;
-    std::cout << "Test upper bound a (unknown) & b (>= 0) bounded" << std::endl;
+    std::cout << "Test a (unknown) bounded & b (>= 0) bounded" << std::endl;
     
     z3::context context;
     z3::solver solver(context);
@@ -55,7 +55,7 @@ void test_unknown_and_pos_bounded() {
 
 void test_pos_and_pos_bounded() {
     std::cout << "-------------------" << std::endl;
-    std::cout << "Test upper bound a (>= 0) & b (>= 0) bounded" << std::endl;
+    std::cout << "Test a (>= 0) bounded & b (>= 0) bounded" << std::endl;
     
     z3::context context;
     z3::solver solver(context);
@@ -79,7 +79,6 @@ void test_pos_and_pos_bounded() {
 
     z3::expr res = i & j;
     
-    // we just care about the upper bound tightness
     // if possible to be less than our min or more than our max, BAD
     solver.add(res < emin || res > emax);
     
@@ -107,7 +106,7 @@ void test_pos_and_pos_bounded() {
 
 void test_unknown_and_unknown_bounded() {
     std::cout << "-------------------" << std::endl;
-    std::cout << "Test [int] upper bound a (unknown) & b (unknown) bounded" << std::endl;
+    std::cout << "Test [int] a (unknown) bounded & b (unknown) bounded" << std::endl;
     
     z3::context context;
     z3::solver solver(context);
@@ -129,7 +128,6 @@ void test_unknown_and_unknown_bounded() {
 
     z3::expr res = i & j;
     
-    // we just care about the upper bound tightness
     // if possible to be less than our min or more than our max, BAD
     solver.add(res > emax);
     
