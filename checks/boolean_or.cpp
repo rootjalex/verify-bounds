@@ -1,24 +1,24 @@
 #include "Interval.h"
 
-z3::expr make_and(z3::expr &a, z3::expr &b) {
+z3::expr make_or(z3::expr &a, z3::expr &b) {
     return ite(
             a, // is_one(a)
-            b,
+            a,
             ite(
                 b, // is_one(b)
-                a,
+                b,
                 ite(
                     !a, // is_zero(a)
-                    a,
+                    b,
                     ite(
                         !b, // is_zero(b)
-                        b,
-                        a && b)))); // base case (not statically known) (not reachable via z3)
+                        a,
+                        a || b)))); // base case (not statically known) (not reachable via z3)
 }
 
-void test_boolean_and() {
+void test_boolean_or() {
     std::cout << "-------------------" << std::endl;
-    std::cout << "Test boolean a && b" << std::endl;
+    std::cout << "Test boolean a || b" << std::endl;
     
     z3::context context;
     z3::solver solver(context);
@@ -26,10 +26,10 @@ void test_boolean_and() {
     Bool_Interval a("a", context, solver);
     Bool_Interval b("b", context, solver);
 
-    z3::expr res = a.inner && b.inner;
+    z3::expr res = a.inner || b.inner;
 
-    z3::expr emin = make_and(a.lower, b.lower);
-    z3::expr emax = make_and(a.upper, b.upper);
+    z3::expr emin = make_or(a.lower, b.lower);
+    z3::expr emax = make_or(a.upper, b.upper);
 
     // binary choice
     solver.add(res != emin && res != emax);
@@ -56,5 +56,5 @@ void test_boolean_and() {
 }
 
 int main(void) {
-    test_boolean_and();
+    test_boolean_or();
 }
