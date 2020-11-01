@@ -24,6 +24,11 @@ struct Interval {
     z3::expr &GetUpper();
 };
 
+struct Bool_Interval {
+    z3::expr lower, upper;
+    z3::expr inner;
+    Bool_Interval(std::string name, z3::context &context, z3::solver &solver);
+};
 
 void apply_interval(z3::solver &solver, Interval *interval, z3::expr &variable);
 
