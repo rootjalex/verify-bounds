@@ -30,6 +30,10 @@ void test_boolean_or() {
 
     z3::expr emin = make_or(a.lower, b.lower);
     z3::expr emax = make_or(a.upper, b.upper);
+    // if lower is true then upper is true
+    solver.add(ite(emin, emax, context.bool_val(true)));
+    // if upper is false then lower is false
+    solver.add(ite(!emax, !emin, context.bool_val(true)));
 
     // binary choice
     solver.add(res != emin && res != emax);

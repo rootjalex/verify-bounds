@@ -23,7 +23,11 @@ void test_boolean_not() {
 
     z3::expr emin = make_not(e.upper);
     z3::expr emax = make_not(e.lower);
-
+    // if lower is true then upper is true
+    solver.add(ite(emin, emax, context.bool_val(true)));
+    // if upper is false then lower is false
+    solver.add(ite(!emax, !emin, context.bool_val(true)));
+    
     // binary choice
     solver.add(res != emin && res != emax);
     
