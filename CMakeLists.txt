@@ -20,7 +20,8 @@ target_include_directories(core PUBLIC include)
 
 foreach (test IN ITEMS add mul sub div mod
         min max bitwise_and bitwise_or bitwise_not
-        boolean_and boolean_or boolean_not)
+        boolean_and boolean_or boolean_not
+        select)
   add_executable(${test} checks/${test}.cpp)
   target_link_libraries(${test} PRIVATE core)
 endforeach ()
