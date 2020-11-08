@@ -15,9 +15,9 @@ void check_select(Bool_Interval cond, Interval *a, Interval *b, z3::solver &solv
     }
 
     z3::check_result ans = solver.check();
-    if(solver.check() == z3::unsat) {
+    if(ans == z3::unsat) {
         std::cout << "proved" << std::endl;
-    } else if (solver.check() == z3::unknown) {
+    } else if (ans == z3::unknown) {
         std::cout << "ERROR: z3 unable to prove or disprove" << std::endl;
     } else { // sat
         std::cout << "failed to prove" << std::endl;
@@ -50,11 +50,11 @@ void test_select_min_lower_equal() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
     
@@ -77,11 +77,11 @@ void test_select_min_cond_single_point() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
     
@@ -107,11 +107,11 @@ void test_select_min_cond_known_all() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
     
@@ -135,11 +135,11 @@ void test_select_min_cond_upper_true() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
     
@@ -169,11 +169,11 @@ void test_select_min_cond_lower_false() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
     
@@ -203,11 +203,11 @@ void test_select_min_cond_unknown() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::LowerBound,
         NoRestriction, BoundType::Unbounded);
     
@@ -238,11 +238,11 @@ void test_select_max_upper_equal() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
     
@@ -268,11 +268,11 @@ void test_select_max_cond_single_point() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
     
@@ -298,11 +298,11 @@ void test_select_max_cond_known_all() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
     
@@ -328,11 +328,11 @@ void test_select_max_cond_upper_true() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
     
@@ -362,11 +362,11 @@ void test_select_max_cond_lower_false() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
     
@@ -396,11 +396,11 @@ void test_select_max_cond_unknown() {
     z3::solver solver(context);
 
     Bool_Interval cond("cond", context, solver);
-    Interval *a = MakeInterval(context, "a", IntervalType::Point,
+    Interval *a = MakeInterval(context, "a", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
 
-    Interval *b = MakeInterval(context, "b", IntervalType::Point,
+    Interval *b = MakeInterval(context, "b", IntervalType::Unknown,
         NoRestriction, BoundType::Unbounded,
         NoRestriction, BoundType::UpperBound);
     
