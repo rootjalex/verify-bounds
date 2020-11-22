@@ -104,29 +104,6 @@ void check_shift_left(bool isUpperBound, const z3::expr &a_bound, const z3::expr
     }
 }
 
-void test_lower_bound_lshift_nonneg() {
-    std::cout << "-------------------" << std::endl;
-    std::cout << "Test [a0, _] << u[b0, _] && b0 >= 0 && b0 < t.bits()" << std::endl;
-    
-    z3::context context;
-    z3::solver solver(context);
-
-    z3::expr a0 = context.bv_const("a0", NBITS);
-    z3::expr b0 = context.bv_const("b0", NBITS);
-    // b is unsigned because strictly non-neg
-    solver.add(z3::uge(b0, 0));
-    solver.add(z3::ult(b0, NBITS));
-    bool aIsUint = false;
-    bool bIsUint = true;
-
-    // interval.min = a_interval.min << b_interval.min;
-    z3::expr emin = iu_shift_left(a0, b0);
-    disallow_overflow(a0, b0, emin, aIsUint, bIsUint, solver);
-
-    check_shift_left(false, a0, b0, aIsUint, bIsUint, emin, solver, context);
-    std::cout << "-------------------" << std::endl;
-}
-
 /*
 else if (a_interval.has_lower_bound() &&
             b_interval.has_lower_bound() &&
@@ -136,9 +113,9 @@ else if (a_interval.has_lower_bound() &&
     interval.min = a_interval.min >> abs(b_interval.min);
 }
 */
-void test_lower_bound_lshift_neg() {
+void bug_lower_bound_lshift_neg() {
     std::cout << "-------------------" << std::endl;
-    std::cout << "Test [a0, _] << [b0, _] && b0 < 0 && b0 > -t.bits()" << std::endl;
+    std::cout << "Original for [a0, _] << [b0, _] && b0 < 0 && b0 > -t.bits()" << std::endl;
     
     z3::context context;
     z3::solver solver(context);
@@ -160,55 +137,61 @@ void test_lower_bound_lshift_neg() {
     std::cout << "-------------------" << std::endl;
 }
 
-void test_upper_bound_lshift_nonneg() {
+void fix_pos_lower_bound_lshift_neg() {
     std::cout << "-------------------" << std::endl;
-    std::cout << "Test [_, a1] << u[_, b1] && b1 >= 0 && b1 < t.bits()" << std::endl;
+    std::cout << "Fix for [a0(+), _] << [b0, _] && b0 < 0 && b0 > -t.bits()" << std::endl;
     
     z3::context context;
     z3::solver solver(context);
 
-    z3::expr a1 = context.bv_const("a1", NBITS);
-    z3::expr b1 = context.bv_const("b1", NBITS);
-    // b1 >= 0 && b1 < t.bits()
-    solver.add(z3::uge(b1, 0));
-    solver.add(z3::ult(b1, NBITS));
-    bool aIsUint = false;
-    bool bIsUint = true;
-
-    // interval.max = a_interval.max << b_interval.max;
-    z3::expr emax = z3::shl(a1, b1);       // lower bound
-    disallow_overflow(a1, b1, emax, aIsUint, bIsUint, solver);
-
-    check_shift_left(true, a1, b1, aIsUint, bIsUint, emax, solver, context);
-    std::cout << "-------------------" << std::endl;
-}
-
-void test_upper_bound_lshift_neg() {
-    std::cout << "-------------------" << std::endl;
-    std::cout << "Test [_, a1] << [_, b1] && b1 < 0 && b1 > -t.bits()" << std::endl;
-    
-    z3::context context;
-    z3::solver solver(context);
-
-    z3::expr a1 = context.bv_const("a1", NBITS);
-    z3::expr b1 = context.bv_const("b1", NBITS);
-    // b1 < 0 && b1 > -t.bits()
-    solver.add(b1 < 0);
-    solver.add(b1 > -NBITS);
+    z3::expr a0 = context.bv_const("a0", NBITS);
+    z3::expr b0 = context.bv_const("b0", NBITS);
     bool aIsUint = false;
     bool bIsUint = false;
 
-    // interval.max = a_interval.max >> abs(b_interval.max);
-    z3::expr emax = z3::lshr(a1, b1 * -1);       // lower bound
-    // impossible to overflow with right shift
+    // added
+    solver.add(a0 >= 0);
+    // can_prove(b_interval.min < 0 && b_interval.min > -t.bits()))
+    solver.add(b0 < 0);
+    solver.add(b0 > -NBITS);
 
-    check_shift_left(true, a1, b1, aIsUint, bIsUint, emax, solver, context);
+    // interval.min = a_interval.min >> abs(b_interval.min);
+    z3::expr emin = z3::ashr(a0, b0 * -1);
+    // overflow not possible with right shift
+
+    check_shift_left(false, a0, b0, aIsUint, bIsUint, emin, solver, context);
+    std::cout << "-------------------" << std::endl;
+}
+
+void fix_neg_lower_bound_lshift_neg() {
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Fix for [a0(-), _] << [b0, _] && b0 < 0 && b0 > -t.bits()" << std::endl;
+    
+    z3::context context;
+    z3::solver solver(context);
+
+    z3::expr a0 = context.bv_const("a0", NBITS);
+    z3::expr b0 = context.bv_const("b0", NBITS);
+    bool aIsUint = false;
+    bool bIsUint = false;
+
+    // added
+    solver.add(a0 < 0);
+
+    // can_prove(b_interval.min < 0 && b_interval.min > -t.bits()))
+    solver.add(b0 < 0);
+    solver.add(b0 > -NBITS);
+
+    // interval.min = a_interval.min >> abs(b_interval.min);
+    z3::expr emin = a0;
+    // overflow not possible with right shift
+
+    check_shift_left(false, a0, b0, aIsUint, bIsUint, emin, solver, context);
     std::cout << "-------------------" << std::endl;
 }
 
 int main(int argc, char** argv) {
-    test_lower_bound_lshift_nonneg();
-    test_lower_bound_lshift_neg();
-    test_upper_bound_lshift_nonneg();
-    test_upper_bound_lshift_neg();
+    bug_lower_bound_lshift_neg();
+    fix_pos_lower_bound_lshift_neg();
+    fix_neg_lower_bound_lshift_neg();
 }
