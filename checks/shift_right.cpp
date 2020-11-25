@@ -1,82 +1,15 @@
 #include "Interval.h"
 #include "Check.h"
+#include "Operations.h"
 
 #define NBITS 8
 // TODO: need framework for doing bv intervals
 
-// expects UNSIGNED bit vectors
-// in Halide: uint >> uint : logical shift right
-z3::expr uint_shift_right(const z3::expr &a, const z3::expr &b) {
-    return z3::lshr(a, b);
-}
-
-// in Halide: int >> uint : arithmetic shift right
-z3::expr mixed_iu_shift_right(const z3::expr &a, const z3::expr &b) {
-    return z3::ashr(a, b);
-}
-
-// in Halide: uint >> int : unsure if well-defined? not tested in correctness/bitwise_ops.cpp
-z3::expr mixed_ui_shift_right(const z3::expr &a, const z3::expr &b) {
-    return z3::ite(b < 0, z3::shl(a, -1 * b), z3::lshr(a, b));
-}
-
-// in Halide:
-//   int >> int (pos) : arithmetic shift right
-//   int >> int (neg) : shift left
-z3::expr int_shift_right(const z3::expr &a, const z3::expr &b) {
-    return z3::ite(b < 0, z3::shl(a, -1 * b), z3::ashr(a, b));
-}
-
-struct ShiftParams {
-    bool isUpperBounded = false;
-    bool isLowerBounded = false;
-    bool isUint = false;
-    const z3::expr &upper;
-    const z3::expr &lower;
-};
-
-void apply_shift_params(const z3::expr &i, z3::solver &solver, ShiftParams &a_params) {
-    if (a_params.isUint) {
-        if (a_params.isUpperBounded) {
-            solver.add(z3::ule(i, a_params.upper));
-        }
-        if (a_params.isLowerBounded) {
-            solver.add(z3::uge(i, a_params.lower));
-        }
-    } else {
-        if (a_params.isUpperBounded) {
-            solver.add(i <= a_params.upper);
-        }
-        if (a_params.isLowerBounded) {
-            solver.add(i >= a_params.lower);
-        }
-    }
-}
-
-z3::expr count_set_bits(const z3::expr &i) {
-    z3::expr count = i.ctx().bv_val(0, NBITS);
-    z3::expr temp = i;
-    for (int i = 0; i < NBITS; i++) {
-        count = count + (z3::lshr(temp, i) & 0x1);
-    }
-    return count;
-
-    // uncomment this for NBITS=32
-    // courtesy of https://graphics.stanford.edu/~seander/bithacks.html
-    // const z3::expr mask0 = i.ctx().bv_val(0x55555555u, NBITS);
-    // const z3::expr mask1 = i.ctx().bv_val(0x33333333u, NBITS);
-    // const z3::expr mask2 = i.ctx().bv_val(0xF0F0F0Fu, NBITS);
-    // const z3::expr mask3 = i.ctx().bv_val(0x1010101u, NBITS);
-    // z3::expr temp0 = i - (z3::lshr(i, 1) & mask0);
-    // z3::expr temp1 = (temp0 & mask1) + (z3::lshr(temp0, 2) & mask1);
-    // z3::expr temp2 = z3::lshr(((temp1 + z3::lshr(temp1, 4) & mask2) * mask3), 24);
-    // return temp2;
-}
 
 // no overflow for i >> j
 void disallow_overflow(const z3::expr &i, const z3::expr &j, const z3::expr &res, bool aIsUint, z3::solver &solver) {
     z3::expr jneg = (j < 0);
-    z3::expr bad_bit_count = (count_set_bits(i) != count_set_bits(res));
+    z3::expr bad_bit_count = (count_set_bits(i, NBITS) != count_set_bits(res, NBITS));
     // sign change on an integer is overflow, the false can be optimized out
     z3::expr sign_change = (aIsUint) ? (i.ctx().bool_val(false)) : ((i > 0) && res < 0);
     // overflow only UB for Int(32) and Int(64)
@@ -204,8 +137,6 @@ must try:
     uint >> uint
     int >> uint
 */
-// [48, _] >> [-124, 5] = [1, _] (48 >. 5)
-// 64 >> -2 = 0
 void test_pos_int_lb_rshift_int() {
     std::cout << "-------------------" << std::endl;
     std::cout << "Test [a0, _] >> [b0, b1] && b1 >= 0 && b1 < t.bits()" << std::endl;
@@ -908,7 +839,7 @@ void test_unk_uint_ub_rshift_neg_int() {
 
 int main(int argc, char** argv) {
     test_pos_int_lb_rshift_int(); // this one takes a very long time with NBITS=32
-    // test_pos_uint_lb_rshift_int(); // bug
+    test_pos_uint_lb_rshift_int(); // bug
     test_pos_uint_lb_rshift_uint();
     test_pos_int_lb_rshift_uint();
     test_unk_int_lb_rshift_possibly_neg_int();
@@ -916,16 +847,13 @@ int main(int argc, char** argv) {
     test_unk_uint_lb_rshift_pos_int();
     test_unk_uint_lb_rshift_pos_uint();
     test_unk_int_lb_rshift_pos_uint();
-
     test_unk_int_lb_rshift_neg_int(); // this one takes a very long time with NBITS=32
-    // test_unk_uint_lb_rshift_neg_int(); // bug
-    
+    test_unk_uint_lb_rshift_neg_int(); // bug
     test_possibly_pos_int_ub_rshift_uint();
     test_possibly_pos_uint_ub_rshift_uint();
     test_neg_int_ub_rshift_possibly_neg_int(); // this one takes a very long time with NBITS=32
     test_int_ub_rshift_pos_int();
     test_uint_ub_rshift_pos_int();
-
-    test_unk_int_ub_rshift_neg_int(); // bug?
-    // test_unk_uint_ub_rshift_neg_int(); // bug
+    test_unk_int_ub_rshift_neg_int();
+    test_unk_uint_ub_rshift_neg_int(); // bug
 }

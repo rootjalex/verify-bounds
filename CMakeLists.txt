@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(verify-bounds)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
@@ -26,7 +26,8 @@ foreach (test IN ITEMS add mul sub div mod
   target_link_libraries(${test} PRIVATE core)
 endforeach ()
 
-foreach (bug IN ITEMS div-check mod-check shift_left-check)
+foreach (bug IN ITEMS div-check mod-check
+        shift_left-check shift_right-check)
   add_executable(${bug} bugs/${bug}.cpp)
   target_link_libraries(${bug} PRIVATE core)
 endforeach ()

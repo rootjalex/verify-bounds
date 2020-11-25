@@ -6,13 +6,21 @@
 
 // TODO: need framework for doing bv intervals
 
+
 // don't let i << j overflow
 void disallow_overflow(const z3::expr &i, const z3::expr &j, const z3::expr &res, bool iIsUint, bool jIsUint, z3::solver &solver) {
     z3::expr jpos = (jIsUint || (j >= 0));
-    z3::expr bad_bit_count = (count_set_bits(i, NBITS) != count_set_bits(res, NBITS));
+    z3::expr pos_bit_count = (count_set_bits(i, NBITS) != count_set_bits(res, NBITS)) && (iIsUint || (i >= 0));
+    z3::expr i_sign_mask = z3::ashr((i & (1 << (NBITS-1))), NBITS);
+    z3::expr j_sign_mask = z3::ashr((j & (1 << (NBITS-1))), NBITS);
+    z3::expr extend_i = concat(i_sign_mask, i);
+    z3::expr extend_j = concat(j_sign_mask, j);
+    uint32_t mask = 0xffffffff >> (32 - (NBITS)); // mask of NBITS 1s, which is INT_MIN for NBITS
+    z3::expr int_min = i.ctx().bv_val(mask, NBITS * 2);
+    z3::expr neg_overflow = (iIsUint) ? (i.ctx().bool_val(false)) : (left_shift(extend_i, extend_j, iIsUint, jIsUint) < int_min);
     // sign change on an integer is overflow, the false can be optimized out
     z3::expr sign_change = (iIsUint) ? (i.ctx().bool_val(false)) : ((i > 0) && res < 0);
-    solver.add(!(jpos && (bad_bit_count || sign_change)));
+    solver.add(!(jpos && (pos_bit_count || sign_change || neg_overflow)));
 }
 
 void check_shift_left(bool isUpperBound, const z3::expr &a_bound, const z3::expr &b_bound,
