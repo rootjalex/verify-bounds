@@ -11,7 +11,7 @@
 Require Import ZAxioms ZMulOrder ZSgnAbs NZDiv.
 Require Import NZAdd NZOrder ZAdd NZBase.
 Require Import GenericMinMax ZMaxMin.
-
+Require Import Tactics Ring Omega.
 
 (** * Euclidean Division for integers, Euclid convention
     We use here the "usual" formulation of the Euclid Theorem
@@ -127,8 +127,6 @@ Qed.
 
 (* Begin Interval Definition *)
 
-Require Import Tactics Ring Omega.
-
 (* this is option t but with a diff name for clarity *)
 Inductive Numeric : Type :=
     | Some (v : t)
@@ -146,6 +144,7 @@ Definition Interval_inv (it : Interval) : Prop :=
     | Some x, Some y => x <= y
     | _, _ => True
     end.
+
 
 Definition contains (it : Interval) (n : t) : Prop :=
     match (minv it), (maxv it) with 
@@ -744,3 +743,4 @@ Proof.
 Qed.
 
 (* div_bounded_single_point is proven by the above two cases *)
+End ZEuclidProp.

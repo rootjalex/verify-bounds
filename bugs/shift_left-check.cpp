@@ -237,12 +237,12 @@ void fix_neg_full_bound_lshift_neg() {
     bool aIsUint = false;
     bool bIsUint = false;
 
-    // added
+    // can_prove(a_interval.min < 0)
     solver.add(a0 < 0);
 
     // can_prove(b_interval.min < 0 && b_interval.min > -t.bits()))
-    solver.add(b0 < 0);
-    solver.add(b0 > -NBITS);
+    // solver.add(b0 < 0);
+    // solver.add(b0 > -NBITS);
     // can_prove(b_interval.max <= 0)
     solver.add(b1 <= 0);
 
@@ -250,7 +250,7 @@ void fix_neg_full_bound_lshift_neg() {
     z3::expr emin = a0;
 
     ShiftParams a_params = {.isUpperBounded=false, .isLowerBounded=true, .isUint=aIsUint, .upper=unb, .lower=a0};
-    ShiftParams b_params = {.isUpperBounded=true, .isLowerBounded=true, .isUint=bIsUint, .upper=b1, .lower=b0};
+    ShiftParams b_params = {.isUpperBounded=true, .isLowerBounded=false, .isUint=bIsUint, .upper=b1, .lower=unb};
 
     check_shift_left(a_params, b_params, /*isUpperBound*/false, emin, solver, context);
     std::cout << "-------------------" << std::endl;
@@ -265,17 +265,17 @@ void fix_neg_full_bound_lshift_possibly_neg() {
     z3::expr unb = context.bv_const("unb", NBITS); // used for default unbounded arg
 
     z3::expr a0 = context.bv_const("a0", NBITS);
-    z3::expr b0 = context.bv_const("b0", NBITS);
+    // z3::expr b0 = context.bv_const("b0", NBITS);
     z3::expr b1 = context.bv_const("b1", NBITS);
     bool aIsUint = false;
     bool bIsUint = false;
 
-    // added
+    // can_prove(a_interval.min < 0)
     solver.add(a0 < 0);
 
     // can_prove(b_interval.min < 0 && b_interval.min > -t.bits()))
-    solver.add(b0 < 0);
-    solver.add(b0 > -NBITS);
+    // solver.add(b0 < 0);
+    // solver.add(b0 > -NBITS);
 
     // interval.min = a_interval.min;
     z3::expr temp_shift = left_shift(a0, b1, aIsUint, bIsUint);
@@ -283,7 +283,34 @@ void fix_neg_full_bound_lshift_possibly_neg() {
     z3::expr emin = ite(temp_shift < a0, temp_shift, a0);
 
     ShiftParams a_params = {.isUpperBounded=false, .isLowerBounded=true, .isUint=aIsUint, .upper=unb, .lower=a0};
-    ShiftParams b_params = {.isUpperBounded=true, .isLowerBounded=true, .isUint=bIsUint, .upper=b1, .lower=b0};
+    ShiftParams b_params = {.isUpperBounded=true, .isLowerBounded=false, .isUint=bIsUint, .upper=b1, .lower=unb};
+
+    check_shift_left(a_params, b_params, /*isUpperBound*/false, emin, solver, context);
+    std::cout << "-------------------" << std::endl;
+}
+
+void fix_pos_full_bound_lshift_ub_nonpos() {
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Fix for [a0(+), _] << [_, _]" << std::endl;
+    
+    z3::context context;
+    z3::solver solver(context);
+    z3::expr unb = context.bv_const("unb", NBITS); // used for default unbounded arg
+
+    z3::expr a0 = context.bv_const("a0", NBITS);
+    z3::expr b1 = context.bv_const("b1", NBITS);
+    bool aIsUint = false;
+    bool bIsUint = false;
+
+    // can_prove(a_interval.min >= 0 && b_interval.max <= 0)
+    solver.add(a0 >= 0);
+    // solver.add(b1 <= 0);
+
+    // interval.min = make_zero(t);
+    z3::expr emin = context.bv_val(0, NBITS);
+
+    ShiftParams a_params = {.isUpperBounded=false, .isLowerBounded=true, .isUint=aIsUint, .upper=unb, .lower=a0};
+    ShiftParams b_params = {.isUpperBounded=false, .isLowerBounded=false, .isUint=bIsUint, .upper=unb, .lower=unb};
 
     check_shift_left(a_params, b_params, /*isUpperBound*/false, emin, solver, context);
     std::cout << "-------------------" << std::endl;
@@ -295,4 +322,5 @@ int main(int argc, char** argv) {
     fix_pos_lower_bound_lshift_neg();
     fix_neg_full_bound_lshift_neg();
     fix_neg_full_bound_lshift_possibly_neg();
+    fix_pos_full_bound_lshift_ub_nonpos();
 }
