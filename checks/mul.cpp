@@ -189,11 +189,11 @@ void test_both_bounded() {
     std::cout << "-------------------" << std::endl;
     std::cout << "Test both bounded Mul" << std::endl;
     z3::context c;
-    Interval *a = MakeInterval(c, "a", IntervalType::NotPoint, 
+    Interval *a = MakeInterval(c, "a", IntervalType::NotPoint,
         NoRestriction, LowerBound, // lower bound
         NoRestriction, UpperBound); // upper bound
 
-    Interval *b = MakeInterval(c, "b", IntervalType::NotPoint, 
+    Interval *b = MakeInterval(c, "b", IntervalType::NotPoint,
         NoRestriction, LowerBound, // lower bound
         NoRestriction, UpperBound); // upper bound
 
@@ -213,9 +213,61 @@ void test_both_bounded() {
     std::cout << "-------------------" << std::endl;
 }
 
+void test_positive_with_lower_bound() {
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Test (a0, a1) * (b0, inf) with (a0 >= 0)" << std::endl;
+    z3::context c;
+    Interval *a = MakeInterval(c, "a", IntervalType::NotPoint,
+        NonNegative, LowerBound, // lower bound
+        NonNegative, UpperBound); // upper bound
 
-int main(int argc, char** argv)
-{
+    Interval *b = MakeInterval(c, "b", IntervalType::NotPoint,
+        NoRestriction, LowerBound, // lower bound
+        NoRestriction, Unbounded); // upper bound
+
+    z3::expr a0 = a->GetLower();
+    z3::expr b0 = b->GetLower();
+    z3::expr a1 = a->GetUpper();
+
+    z3::expr emin = min(a0 * b0, a1 * b0);
+    z3::expr emax(c); // not used
+
+    Bound e0(NoRestriction, LowerBound, emin);
+    Bound e1(NoRestriction, Unbounded, emax);
+
+    check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
+    std::cout << "-------------------" << std::endl;
+}
+
+void test_positive_with_upper_bound() {
+    std::cout << "-------------------" << std::endl;
+    std::cout << "Test (a0, a1) * (-inf, b1) with (a0 >= 0)" << std::endl;
+    z3::context c;
+    Interval *a = MakeInterval(c, "a", IntervalType::NotPoint,
+        NonNegative, LowerBound, // lower bound
+        NonNegative, UpperBound); // upper bound
+
+    Interval *b = MakeInterval(c, "b", IntervalType::NotPoint,
+        NoRestriction, Unbounded, // lower bound
+        NoRestriction, UpperBound); // upper bound
+
+    z3::expr a0 = a->GetLower();
+    z3::expr a1 = a->GetUpper();
+    z3::expr b1 = b->GetUpper();
+
+    z3::expr emin(c); // not used
+    z3::expr emax = max(a1 * b1, a0 * b1);
+
+    Bound e0(NoRestriction, Unbounded, emin);
+    Bound e1(NoRestriction, UpperBound, emax);
+
+    check(c, Operation::Mul, a, b, e0, e1);
+    check_tightness(c, Operation::Mul, a, b, e0, e1);
+    std::cout << "-------------------" << std::endl;
+}
+
+int main(int argc, char** argv) {
     test_single_point();
     test_b_zero();
     test_b_pos_a_bounded();
@@ -224,4 +276,6 @@ int main(int argc, char** argv)
     test_b_neg_a_upperbounded();
     test_b_point_a_bounded();
     test_both_bounded();
+    test_positive_with_lower_bound();
+    test_positive_with_upper_bound();
 }
